@@ -9,7 +9,7 @@ enum class StorageLayout {
   ColumnMajor = 1 // 列优先
 };
 
-template <typename T, StorageLayout layout = StorageLayout::RowMajor>
+template <typename T, StorageLayout layout = StorageLayout::ColumnMajor>
 class MatrixView {
 public:
   size_t start_row, start_col;
@@ -22,7 +22,8 @@ public:
    *
    * @param rows 行数
    * @param cols 列数
-   * @param data 指向数据的指针
+   * @param data 指向数据的指针，
+   *             需要调用者保证 data 指针所持有的内存size >= rows*cols
    * @param lda  leading dimension, 默认为 0
    *             若为 0 则根据 RowMajor 或 ColumnMajor 选择 cols 或 rows
    * @param start_row submatrix窗口的左上角坐标行
@@ -39,31 +40,12 @@ public:
     }
   }
 
-  /**
-   * @brief 访问第i行第j列的元素，兼容RowMajor和ColumnMajor
-   *
-   * @param i 第i行
-   * @param j 第j列
-   * @return T
-   */
-  T get(size_t i, size_t j) const {
-    assert(0 <= i && i < rows);
-    assert(0 <= j && j < cols);
-    if constexpr (layout == StorageLayout::RowMajor) {
-      return data[(start_row + i) * lda + (start_col + j)];
-    } else {
-      return data[(start_col + j) * lda + (start_row + i)];
-    }
-  }
+  T get(size_t i, size_t j) const { return data[calculateIndex(i, j)]; }
 
-  void set(size_t i, size_t j, T value) {
-    assert(0 <= i && i < rows);
-    assert(0 <= j && j < cols);
-    if constexpr (layout == StorageLayout::RowMajor) {
-      data[(start_row + i) * lda + (start_col + j)] = value;
-    } else {
-      data[(start_col + j) * lda + (start_row + i)] = value;
-    }
+  void set(size_t i, size_t j, T value) { data[calculateIndex(i, j)] = value; }
+
+  T *getAddress(size_t i, size_t j) const {
+    return &data[calculateIndex(i, j)];
   }
 
   /**
@@ -76,7 +58,26 @@ public:
    * @return MatrixView
    */
   MatrixView submat(size_t i, size_t j, size_t rows, size_t cols) {
+    assert((i + rows) * (j + cols) <= (this->rows) * (this->cols));
     return MatrixView<T, layout>{rows, cols, data, lda, i, j};
+  }
+
+private:
+  /**
+   * @brief 计算第i行第j列的元素在一维内存中的索引，兼容RowMajor和ColumnMajor
+   *
+   * @param i 第i行
+   * @param j 第j列
+   * @return size_t
+   */
+  size_t calculateIndex(size_t i, size_t j) const {
+    assert(0 <= i && i < rows);
+    assert(0 <= j && j < cols);
+    if constexpr (layout == StorageLayout::RowMajor) {
+      return (start_row + i) * lda + (start_col + j);
+    } else {
+      return (start_col + j) * lda + (start_row + i);
+    }
   }
 };
 
@@ -93,7 +94,7 @@ public:
  * @tparam GEMM_SIMD_ALIGN_SIZE
  * @param A 输入矩阵
  * @param B 输入矩阵
- * @return Matrix<T> 输出矩阵
+ * @return MatrixView<T> 输出矩阵
  */
 template <typename T, size_t GEMM_NC = 4080, size_t GEMM_KC = 256,
           size_t GEMM_MC = 72, size_t GEMM_MR = 8, size_t GEMM_NR = 4,
