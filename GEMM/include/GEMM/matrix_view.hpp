@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include <cstddef>
+#include <stdexcept>
 
 namespace GEMM {
 enum class StorageLayout : int {
@@ -39,12 +40,14 @@ public:
     }
   }
 
-  T get(size_t i, size_t j) const { return data[calculateIndex(i, j)]; }
+  // 重载 () 运算符，允许访问和修改元素
+  T &operator()(size_t i, size_t j) {
+    return data[calculateIndex(i, j)]; // 返回元素的引用，可以修改元素
+  }
 
-  void set(size_t i, size_t j, T value) { data[calculateIndex(i, j)] = value; }
-
-  T *getAddress(size_t i, size_t j) const {
-    return &data[calculateIndex(i, j)];
+  // 重载 () 运算符，用于只读访问元素
+  T operator()(size_t i, size_t j) const {
+    return data[calculateIndex(i, j)]; // 返回元素的值
   }
 
   /**
@@ -70,8 +73,10 @@ private:
    * @return size_t
    */
   size_t calculateIndex(size_t i, size_t j) const {
-    assert(0 <= i && i < rows);
-    assert(0 <= j && j < cols);
+    if (!(0 <= i && i < rows && 0 <= j && j < cols)) {
+      throw std::out_of_range("Index out of range");
+    }
+
     if constexpr (layout == StorageLayout::RowMajor) {
       return (start_row + i) * lda + (start_col + j);
     } else {

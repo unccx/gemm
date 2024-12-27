@@ -25,10 +25,10 @@ MatrixView<T, panel_layout> pack_panel(const MatrixView<T, mat_layout> sub_mat,
     MatrixView<T, panel_layout> ret{sub_mat.rows, stride, packed_panel};
     for (size_t i = 0; i < sub_mat.rows; i++) {
       for (size_t j = 0; j < sub_mat.cols; j++) {
-        *(packed_panel++) = sub_mat.get(i, j);
+        *(packed_panel++) = sub_mat(i, j);
       }
       for (size_t j = sub_mat.cols; j < stride; j++) {
-        *(packed_panel++) = sub_mat.get(i, 0);
+        *(packed_panel++) = sub_mat(i, 0);
       }
     }
     return ret;
@@ -38,10 +38,10 @@ MatrixView<T, panel_layout> pack_panel(const MatrixView<T, mat_layout> sub_mat,
     MatrixView<T, panel_layout> ret{stride, sub_mat.cols, packed_panel};
     for (size_t j = 0; j < sub_mat.cols; j++) {
       for (size_t i = 0; i < sub_mat.rows; i++) {
-        *(packed_panel++) = sub_mat.get(i, j);
+        *(packed_panel++) = sub_mat(i, j);
       }
       for (size_t i = sub_mat.rows; i < stride; i++) {
-        *(packed_panel++) = sub_mat.get(0, j);
+        *(packed_panel++) = sub_mat(0, j);
       }
     }
     return ret;

@@ -23,8 +23,7 @@ SCENARIO("micro_kernel的naive实现") {
     for (size_t i = 0; i < C.rows; i++) {
       for (size_t j = 0; j < C.cols; j++) {
         for (size_t k = 0; k < A.cols; k++) {
-          *(C.getAddress(i, j)) +=
-              *(A.getAddress(i, k)) * *(B.getAddress(k, j));
+          C(i, j) = A(i, j) * B(i, j);
         }
       }
     }
@@ -40,7 +39,7 @@ SCENARIO("micro_kernel的naive实现") {
       THEN("micro_kernel结果与naive矩阵乘法相同") {
         for (size_t i = 0; i < output.rows; i++) {
           for (size_t j = 0; j < output.cols; j++) {
-            REQUIRE(output.get(i, j) == C.get(i, j));
+            REQUIRE(output(i, j) == C(i, j));
           }
         }
       }

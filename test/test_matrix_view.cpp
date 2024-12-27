@@ -26,21 +26,21 @@ SCENARIO("MatrixView 访问和修改", "[MatrixView]") {
       THEN("lda是cols") { REQUIRE(mat_view.lda == mat_view.cols); }
 
       THEN("访问到的是期望值") {
-        CHECK(mat_view.get(1, 3) == 9.0f);
-        CHECK(mat_view.get(2, 3) == 15.0f);
-        CHECK(mat_view.get(3, 1) == 19.0f);
-        CHECK(mat_view.get(3, 5) == 23.0f);
+        CHECK(mat_view(1, 3) == 9.0f);
+        CHECK(mat_view(2, 3) == 15.0f);
+        CHECK(mat_view(3, 1) == 19.0f);
+        CHECK(mat_view(3, 5) == 23.0f);
       }
     }
 
     WHEN("修改矩阵元素") {
-      mat_view.set(0, 0, 100);
-      mat_view.set(3, 1, 101);
-      mat_view.set(3, 5, 102);
+      mat_view(3, 1) = 101;
+      mat_view(3, 5) = 102;
+      mat_view(0, 0) = 100;
       THEN("修改成功") {
-        CHECK(mat_view.get(0, 0) == 100.0f);
-        CHECK(mat_view.get(3, 1) == 101.0f);
-        CHECK(mat_view.get(3, 5) == 102.0f);
+        CHECK(mat_view(0, 0) == 100.0f);
+        CHECK(mat_view(3, 1) == 101.0f);
+        CHECK(mat_view(3, 5) == 102.0f);
       }
     }
 
@@ -49,10 +49,10 @@ SCENARIO("MatrixView 访问和修改", "[MatrixView]") {
       // 14 15 16
       auto submat_view = mat_view.submat(1, 2, 2, 3);
       THEN("访问到的是期望值") {
-        CHECK(submat_view.get(0, 0) == 8.0f);
-        CHECK(submat_view.get(0, 1) == 9.0f);
-        CHECK(submat_view.get(1, 1) == 15.0f);
-        CHECK(submat_view.get(1, 2) == 16.0f);
+        CHECK(submat_view(0, 0) == 8.0f);
+        CHECK(submat_view(0, 1) == 9.0f);
+        CHECK(submat_view(1, 1) == 15.0f);
+        CHECK(submat_view(1, 2) == 16.0f);
       }
     }
   }
@@ -80,33 +80,33 @@ SCENARIO("MatrixView 访问和修改", "[MatrixView]") {
       THEN("lda是rows") { REQUIRE(mat_view.lda == mat_view.rows); }
 
       THEN("访问到的是期望值") {
-        CHECK(mat_view.get(1, 3) == 13.0f);
-        CHECK(mat_view.get(2, 3) == 14.0f);
-        CHECK(mat_view.get(3, 1) == 7.0f);
-        CHECK(mat_view.get(3, 5) == 23.0f);
+        CHECK(mat_view(1, 3) == 13.0f);
+        CHECK(mat_view(2, 3) == 14.0f);
+        CHECK(mat_view(3, 1) == 7.0f);
+        CHECK(mat_view(3, 5) == 23.0f);
       }
-    }
 
-    WHEN("修改矩阵元素") {
-      mat_view.set(0, 0, 100);
-      mat_view.set(3, 1, 101);
-      mat_view.set(3, 5, 102);
-      THEN("修改成功") {
-        CHECK(mat_view.get(0, 0) == 100.0f);
-        CHECK(mat_view.get(3, 1) == 101.0f);
-        CHECK(mat_view.get(3, 5) == 102.0f);
+      WHEN("修改矩阵元素") {
+        mat_view(0, 0) = 100;
+        mat_view(3, 1) = 101;
+        mat_view(3, 5) = 102;
+        THEN("修改成功") {
+          CHECK(mat_view(0, 0) == 100.0f);
+          CHECK(mat_view(3, 1) == 101.0f);
+          CHECK(mat_view(3, 5) == 102.0f);
+        }
       }
-    }
 
-    WHEN("获取submatrix") {
-      //  9  13  17
-      // 10  14  18
-      auto submat_view = mat_view.submat(1, 2, 2, 3);
-      THEN("访问到的是期望值") {
-        CHECK(submat_view.get(0, 0) == 9.0f);
-        CHECK(submat_view.get(0, 1) == 13.0f);
-        CHECK(submat_view.get(1, 1) == 14.0f);
-        CHECK(submat_view.get(1, 2) == 18.0f);
+      WHEN("获取submatrix") {
+        //  9  13  17
+        // 10  14  18
+        auto submat_view = mat_view.submat(1, 2, 2, 3);
+        THEN("访问到的是期望值") {
+          CHECK(submat_view(0, 0) == 9.0f);
+          CHECK(submat_view(0, 1) == 13.0f);
+          CHECK(submat_view(1, 1) == 14.0f);
+          CHECK(submat_view(1, 2) == 18.0f);
+        }
       }
     }
   }

@@ -5,6 +5,14 @@
 #include <cstddef>
 namespace GEMM {
 
+/**
+ * @brief
+ *
+ * @tparam T
+ * @tparam layout 输出矩阵的内存布局
+ * @tparam GEMM_MR
+ * @tparam GEMM_NR
+ */
 template <typename T, StorageLayout layout, size_t GEMM_MR, size_t GEMM_NR>
 class MicroKernel {
 public:
@@ -26,15 +34,13 @@ void MicroKernel<T, layout, GEMM_MR, GEMM_NR>::block_update(
     if constexpr (layout == StorageLayout::ColumnMajor) {
       for (size_t j = 0; j < GEMM_NR; j++) {
         for (size_t i = 0; i < GEMM_MR; i++) {
-          *(C.getAddress(i, j)) +=
-              *(A.getAddress(i, l)) * *(B.getAddress(l, j));
+          C(i, j) += A(i, l) * B(l, j);
         }
       }
     } else {
       for (size_t i = 0; i < GEMM_MR; i++) {
         for (size_t j = 0; j < GEMM_NR; j++) {
-          *(C.getAddress(i, j)) +=
-              *(A.getAddress(i, l)) * *(B.getAddress(l, j));
+          C(i, j) += A(i, l) * B(l, j);
         }
       }
     }

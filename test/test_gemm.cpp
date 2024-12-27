@@ -9,7 +9,7 @@ void print_mat(const GEMM::MatrixView<T, layout> mat_view) {
   fmt::print("mat_view: \n");
   for (size_t i = 0; i < mat_view.rows; i++) {
     for (size_t j = 0; j < mat_view.cols; j++) {
-      fmt::print("{} ", mat_view.get(i, j));
+      fmt::print("{} ", mat_view(i, j));
     }
     fmt::print("\n");
   }
@@ -60,7 +60,7 @@ SCENARIO("pack_panel 处理一个 panel") {
 
         for (size_t i = 0; i < sub_matrix.rows; i++) {
           for (size_t j = 0; j < sub_matrix.cols; j++) {
-            REQUIRE(sub_matrix.get(i, j) == pack.get(i, j));
+            REQUIRE(sub_matrix(i, j) == pack(i, j));
           }
         }
       }
@@ -89,7 +89,7 @@ SCENARIO("pack_panel 处理一个 panel") {
 
         for (size_t i = 0; i < sub_matrix.rows; i++) {
           for (size_t j = 0; j < sub_matrix.cols; j++) {
-            REQUIRE(sub_matrix.get(i, j) == pack.get(i, j));
+            REQUIRE(sub_matrix(i, j) == pack(i, j));
           }
         }
       }
@@ -110,7 +110,7 @@ SCENARIO("pack_panel 处理一个 panel") {
               sub_matrix, &pack_ptr[j * k_c]);
           for (size_t i = 0; i < sub_matrix.rows; i++) {
             for (size_t k = 0; k < sub_matrix.cols; k++) {
-              REQUIRE(sub_matrix.get(i, k) == pack.get(i, k));
+              REQUIRE(sub_matrix(i, k) == pack(i, k));
             }
           }
         }
@@ -143,8 +143,7 @@ SCENARIO("gemm") {
     for (size_t i = 0; i < C.rows; i++) {
       for (size_t j = 0; j < C.cols; j++) {
         for (size_t k = 0; k < A.cols; k++) {
-          *(C.getAddress(i, j)) +=
-              *(A.getAddress(i, k)) * *(B.getAddress(k, j));
+          C(i, j) += A(i, k) * B(k, j);
         }
       }
     }
@@ -155,7 +154,7 @@ SCENARIO("gemm") {
       THEN("gemm结果与naive矩阵乘法相同") {
         for (size_t i = 0; i < output.rows; i++) {
           for (size_t j = 0; j < output.cols; j++) {
-            REQUIRE(output.get(i, j) == C.get(i, j));
+            REQUIRE(output(i, j) == C(i, j));
           }
         }
       }
@@ -185,8 +184,7 @@ SCENARIO("gemm") {
     for (size_t i = 0; i < C.rows; i++) {
       for (size_t j = 0; j < C.cols; j++) {
         for (size_t k = 0; k < A.cols; k++) {
-          *(C.getAddress(i, j)) +=
-              *(A.getAddress(i, k)) * *(B.getAddress(k, j));
+          C(i, j) += A(i, k) * B(k, j);
         }
       }
     }
@@ -197,7 +195,7 @@ SCENARIO("gemm") {
       THEN("gemm结果与naive矩阵乘法相同") {
         for (size_t i = 0; i < output.rows; i++) {
           for (size_t j = 0; j < output.cols; j++) {
-            REQUIRE(output.get(i, j) == C.get(i, j));
+            REQUIRE(output(i, j) == C(i, j));
           }
         }
       }
@@ -227,8 +225,7 @@ SCENARIO("gemm") {
     for (size_t i = 0; i < C.rows; i++) {
       for (size_t j = 0; j < C.cols; j++) {
         for (size_t k = 0; k < A.cols; k++) {
-          *(C.getAddress(i, j)) +=
-              *(A.getAddress(i, k)) * *(B.getAddress(k, j));
+          C(i, j) += A(i, k) * B(k, j);
         }
       }
     }
@@ -239,7 +236,7 @@ SCENARIO("gemm") {
       THEN("gemm结果与naive矩阵乘法相同") {
         for (size_t i = 0; i < output.rows; i++) {
           for (size_t j = 0; j < output.cols; j++) {
-            REQUIRE(output.get(i, j) == C.get(i, j));
+            REQUIRE(output(i, j) == C(i, j));
           }
         }
       }
