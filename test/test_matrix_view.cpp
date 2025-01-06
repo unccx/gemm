@@ -111,3 +111,45 @@ SCENARIO("MatrixView 访问和修改", "[MatrixView]") {
     }
   }
 }
+
+SCENARIO("MatrixView 连续获取 submatrix") {
+  GIVEN("给定一个4x6的ColumnMajor矩阵") {
+    size_t rows = 4;
+    size_t cols = 6;
+    size_t start_row = 0;
+    size_t start_col = 0;
+    float *data = new float[rows * cols]{0};
+
+    //  0  1  2  3  4  5
+    //  6  7  8  9 10 11
+    // 12 13 14 15 16 17
+    // 18 19 20 21 22 23
+
+    for (size_t i = 0; i < rows * cols; i++) {
+      data[i] = i;
+    }
+
+    GEMM::MatrixView<float, GEMM::StorageLayout::RowMajor> mat_view{rows, cols,
+                                                                    data};
+    WHEN("获取submatrix的submatrix") {
+      //  8  9 10
+      // 14 15 16
+      auto submat_view = mat_view.submat(1, 2, 2, 3);
+      auto submat_view2 = submat_view.submat(1, 1, 1, 2);
+      THEN("访问到的是期望值") {
+        REQUIRE(submat_view2(0, 0) == 15.0f);
+        REQUIRE(submat_view2(0, 1) == 16.0f);
+      }
+      THEN("shape符合预期") {
+        auto [r, c] = submat_view.shape();
+        auto [r1, c1] = submat_view2.shape();
+        // fmt::print("shape:[{}, {}]\n", r, c);
+        // fmt::print("shape:[{}, {}]\n", r1, c1);
+        REQUIRE(r == 2);
+        REQUIRE(c == 3);
+        REQUIRE(r1 == 1);
+        REQUIRE(c1 == 2);
+      }
+    }
+  }
+}
