@@ -1,9 +1,13 @@
 #pragma once
 #include <cassert>
 #include <cstddef>
-#include <stdexcept>
+#include <fmt/base.h>
+#include <fmt/core.h>
+#include <string_view>
+#include <utility>
 
 namespace GEMM {
+
 enum class StorageLayout : int {
   RowMajor = 0,   // 行优先
   ColumnMajor = 1 // 列优先
@@ -50,6 +54,8 @@ public:
     return data[calculateIndex(i, j)]; // 返回元素的值
   }
 
+  std::pair<size_t, size_t> shape() { return {rows, cols}; }
+
   /**
    * @brief 生成子矩阵窗口
    *
@@ -60,8 +66,10 @@ public:
    * @return MatrixView
    */
   MatrixView submat(size_t i, size_t j, size_t rows, size_t cols) const {
-    assert((i + rows) * (j + cols) <= (this->rows) * (this->cols));
-    return MatrixView<T, layout>{rows, cols, data, lda, i, j};
+    assert((i + rows) <= (this->rows));
+    assert((j + cols) <= (this->cols));
+    return MatrixView<T, layout>{rows, cols,          data,
+                                 lda,  start_row + i, start_col + j};
   }
 
 private:
@@ -73,9 +81,11 @@ private:
    * @return size_t
    */
   size_t calculateIndex(size_t i, size_t j) const {
-    if (!(0 <= i && i < rows && 0 <= j && j < cols)) {
-      throw std::out_of_range("Index out of range");
-    }
+    // if (!(0 <= i && i < rows && 0 <= j && j < cols)) {
+    //   throw std::out_of_range("Index out of range");
+    // }
+    assert(0 <= i && i < rows);
+    assert(0 <= j && j < cols);
 
     if constexpr (layout == StorageLayout::RowMajor) {
       return (start_row + i) * lda + (start_col + j);
@@ -84,6 +94,18 @@ private:
     }
   }
 };
+
+template <typename T, StorageLayout layout>
+void print_mat(const MatrixView<T, layout> mat_view, std::string_view name) {
+  fmt::print("{}: ----------------------\n", name);
+  for (size_t i = 0; i < mat_view.rows; i++) {
+    for (size_t j = 0; j < mat_view.cols; j++) {
+      fmt::print("{}\t", mat_view(i, j));
+    }
+    fmt::print("\n");
+  }
+  fmt::print("--------------------------\n");
+}
 
 // extern template声明：防止编译器实例化
 extern template class MatrixView<float, StorageLayout::ColumnMajor>;
