@@ -1,0 +1,2 @@
+command script import scripts/lldb/print_matrix.py
+

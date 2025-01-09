@@ -10,7 +10,8 @@
             "name": "Debug",
             "program": "${command:cmake.launchTargetPath}",
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "initCommands": ["command source ${workspaceRoot}/.lldbinit"]
         }
     ]
 }
